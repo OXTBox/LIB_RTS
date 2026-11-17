@@ -1,0 +1,54 @@
+-- LIB_RTS: the demo stack with no window (a copy in the scratchpad, so its note goes to a copy of the inbox).
+-- Mouse and looks are NOT tested here (no screen); this opens it, draws, presses keys, writes a note.
+-- Set the copy root with: --root is not used; the path below is the copy.
+local tS, tPts, tN, tNote
+put "/tmp/claude-1000/-home-igame3d-projects/1c2165ae-ae9d-46cf-98ce-c3a95827cfcc/scratchpad/rtscopy/LIB_RTS/RTS_Demo.livecodescript" into tS
+go stack tS
+put ck("opens", the short name of this stack, "RTS_Demo") & return after tLog
+put ck("library in use", there is a stack "RTS_Library", true) & return after tLog
+put ck("three cards", the number of cards of stack "RTS_Demo", 3) & return after tLog
+put ck("on the play card", the short name of this card of stack "RTS_Demo", "Play") & return after tLog
+put ck("title for the owner", word 1 to 2 of the title of stack "RTS_Demo", "FOR BILL") & return after tLog
+put the points of graphic "Buildings" of card "Play" of stack "RTS_Demo" into tPts
+dispatch "Demo.NewLevel" to stack "RTS_Demo" with "5,6,4,2,6", 42
+put the points of graphic "Buildings" of card "Play" of stack "RTS_Demo" into tPts
+put ck("buildings drawn", the number of lines of tPts > 20, true) & return after tLog
+repeat 20 times
+   RTS.Step 0.033
+   send "Demo.Draw" to stack "RTS_Demo"
+end repeat
+put the points of graphic "Living" of card "Play" of stack "RTS_Demo" & the points of graphic "Armed" of card "Play" of stack "RTS_Demo" into tPts
+put ck("the living drawn", the number of lines of tPts > 5, true) & return after tLog
+put the points of graphic "Dead" of card "Play" of stack "RTS_Demo" into tPts
+put ck("the dead drawn", the number of lines of tPts > 5, true) & return after tLog
+send "keyDown z" to card "Play" of stack "RTS_Demo"
+put ck("Z commands the dead", RTS.TeamSelect(), 1) & return after tLog
+send "keyDown z" to card "Play" of stack "RTS_Demo"
+put ck("Z again selects one of them", the number of lines of RTS.Selected(), 1) & return after tLog
+send "keyDown u" to card "Play" of stack "RTS_Demo"
+send "keyDown h" to card "Play" of stack "RTS_Demo"
+put ck("H commands the living", RTS.TeamSelect(), 0) & return after tLog
+send "Demo.Draw" to stack "RTS_Demo"
+put ck("HUD shows who you command", line 1 of field "HUD" of card "Play" of stack "RTS_Demo", "You command: THE LIVING (H)") & return after tLog
+send "keyDown n" to card "Play" of stack "RTS_Demo"
+put ck("N makes a new level", char 1 of field "Msg" of card "Play" of stack "RTS_Demo" is empty, false) & return after tLog
+send "rawKeyDown 65307" to card "Play" of stack "RTS_Demo"
+send "Demo.ShowHUD" to stack "RTS_Demo"
+put ck("Escape pauses", "PAUSED" is in field "HUD" of card "Play" of stack "RTS_Demo", true) & return after tLog
+send "keyDown +" to card "Play" of stack "RTS_Demo"
+put ck("+ while paused doubles the speed", RTS.Speed(), 2) & return after tLog
+send "rawKeyDown 65307" to card "Play" of stack "RTS_Demo"
+send "rawKeyDown 96" to card "Play" of stack "RTS_Demo"
+put ck("backtick opens the note box", the visible of field "Note" of card "Play" of stack "RTS_Demo", true) & return after tLog
+put "headless test note" into field "Note" of card "Play" of stack "RTS_Demo"
+send "returnInField" to field "Note" of card "Play" of stack "RTS_Demo"
+put textDecode(url ("binfile:/tmp/claude-1000/-home-igame3d-projects/1c2165ae-ae9d-46cf-98ce-c3a95827cfcc/scratchpad/rtscopy/LIB_LLMIN/LIB_GAMES/GAME_NOTES.txt"), "UTF-8") into tNote
+put ck("the note reaches the inbox copy", "RTS_Demo" is in tNote and "headless test note" is in tNote, true) & return after tLog
+send "rawKeyDown 96" to card "Play" of stack "RTS_Demo"
+put "/6*7" into field "Note" of card "Play" of stack "RTS_Demo"
+send "returnInField" to field "Note" of card "Play" of stack "RTS_Demo"
+put ck("command line shows the value", field "Msg" of card "Play" of stack "RTS_Demo", "/6*7 -> 42") & return after tLog
+send "keyDown ?" to card "Play" of stack "RTS_Demo"
+put ck("? shows About", the short name of this card of stack "RTS_Demo", "About") & return after tLog
+put ck("About starts with the long date", line 1 of field "AboutText" of card "About" of stack "RTS_Demo", the long date) & return after tLog
+return tLog

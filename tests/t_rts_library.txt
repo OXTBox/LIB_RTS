@@ -1,0 +1,76 @@
+-- LIB_RTS: the library with no window. Run: python3 -I ~/projects/OXT-BEYOND/tests/oxt_headless.py ~/projects/LIB_RTS/tests/t_rts_library.txt
+local tScript, tL, tSnap, tIds, tId, tHuman, tX0, tZ0, tAt, tT0, tWorst, tT1, tMs, tLine, tZ, tH, tGun, tSel, tN
+put textDecode(url ("binfile:/home/igame3d/projects/LIB_RTS/RTS_Library.livecodescript"), "UTF-8") into tScript
+delete line 1 of tScript
+create stack "RTS_Library"
+set the script of stack "RTS_Library" to tScript
+put ck("compiles", the result, empty) & return after tLog
+start using stack "RTS_Library"
+
+-- the RNDRTS level maker: 5 buildings, 6 humans, 4 guns, 2 cars, 6 dead
+put RTS.NewGame(42, "5,6,4,2,6") into tL
+put ck("seed comes back", tL, 42) & return after tLog
+put ck("level name as RNDRTS made it", RTS.LevelName("5,6,4,2,6"), "B5_H6_G4_C2_Z6_RTS") & return after tLog
+put ck("five houses", the number of lines of RTS.Houses(), 5) & return after tLog
+put ck("walls on the map (16 building cells a house)", the number of lines of RTS.MapCells() >= 80, true) & return after tLog
+put RTS.Snapshot() into tSnap
+put 0 into tH
+put 0 into tZ
+put 0 into tGun
+repeat for each line tLine in tSnap
+   if item 2 of tLine is "human" then add 1 to tH
+   if item 2 of tLine is "zombie" then add 1 to tZ
+   if item 2 of tLine is "gun" then add 1 to tGun
+   if item 2 of tLine is "human" and tHuman is empty then put item 1 of tLine into tHuman
+end repeat
+put ck("7 humans (6 + RNDRTS's masterchief)", tH, 7) & return after tLog
+put ck("6 dead", tZ, 6) & return after tLog
+put ck("guns: 5 in all, carried or on the ground", tGun + the number of lines of RTS.ArmedIds(), 5) & return after tLog
+put ck("status counts", RTS.Counts(), "7,6") & return after tLog
+
+-- selection: a box round the whole map takes the 7 living (you command team 0)
+RTS.BoxBegin
+RTS.BoxUpdate 0, 0, 96, 96, false
+put ck("box selects all the living", the number of lines of RTS.Selected(), 7) & return after tLog
+RTS.UnselectAll
+-- click on one human: just that one
+put RTS.ClickAt(RTS.Get(tHuman, "x"), RTS.Get(tHuman, "z"), false) into tL
+put ck("click on your unit selects it", tL & "/" & RTS.Selected(), "select/" & tHuman) & return after tLog
+-- click on empty ground far away: a move order
+put RTS.FreePoint(48, 48) into tAt
+put RTS.Get(tHuman, "x") into tX0
+put RTS.Get(tHuman, "z") into tZ0
+put RTS.ClickAt(item 1 of tAt, item 2 of tAt, false) into tL
+put ck("click on the ground gives a move order", tL, "move") & return after tLog
+put ck("the order is a run", RTS.Get(tHuman, "orderKind"), "runTo") & return after tLog
+put 0 into tWorst
+put the milliseconds into tT0
+repeat 30 times
+   put the milliseconds into tT1
+   RTS.Step 0.033
+   put max(tWorst, the milliseconds - tT1) into tWorst
+end repeat
+put ck("one second later it has moved", sqrt((RTS.Get(tHuman,"x") - tX0)^2 + (RTS.Get(tHuman,"z") - tZ0)^2) > 0.5 or RTS.Get(tHuman,"alive") is not true, true) & return after tLog
+
+-- the team switch: Z commands the dead
+RTS.SetTeam 1
+put ck("switching team clears the selection", RTS.Selected(), empty) & return after tLog
+RTS.BoxBegin
+RTS.BoxUpdate 0, 0, 96, 96, false
+put the number of lines of RTS.Selected() into tN
+put ck("box now takes the dead", tN >= 6, true) & return after tLog
+RTS.Rush
+-- three minutes of game time; the rules must not throw, and somebody must win or keep fighting
+put the milliseconds into tT0
+repeat 2700 times
+   put the milliseconds into tT1
+   RTS.Step 0.066
+   put max(tWorst, the milliseconds - tT1) into tWorst
+end repeat
+put the milliseconds - tT0 into tMs
+put "INFO 3 min of play in " & tMs & " ms, worst step " & tWorst & " ms; counts " & RTS.Counts() & return after tLog
+put "INFO status: " & line 1 of RTS.Status() & return after tLog
+put "INFO log: " & line -3 to -1 of RTS.Log() & return after tLog
+put ck("the rush changed the count", RTS.Counts() is not "7,6", true) & return after tLog
+put ck("a step is quick (under 60 ms at worst)", tWorst < 60, true) & return after tLog
+return tLog
