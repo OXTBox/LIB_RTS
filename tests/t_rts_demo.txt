@@ -8,7 +8,7 @@ put ck("opens", the short name of this stack, "RTS_Demo") & return after tLog
 put ck("library in use", there is a stack "RTS_Library", true) & return after tLog
 put ck("three cards", the number of cards of stack "RTS_Demo", 3) & return after tLog
 put ck("on the play card", the short name of this card of stack "RTS_Demo", "Play") & return after tLog
-put ck("title for the owner", word 1 to 2 of the title of stack "RTS_Demo", "FOR BILL") & return after tLog
+put ck("title for the owner", word 1 to 2 of the title of stack "RTS_Demo", "FOR OWNER") & return after tLog
 put the points of graphic "Buildings" of card "Play" of stack "RTS_Demo" into tPts
 dispatch "Demo.NewLevel" to stack "RTS_Demo" with "5,6,4,2,6", 42
 put the points of graphic "Buildings" of card "Play" of stack "RTS_Demo" into tPts

@@ -234,12 +234,40 @@ end closeStack
 ######################################################################################
 
 function Demo.PX pX
+   if pX is not a number then
+      Demo.BadValue "x", pX
+      put 0 into pX
+   end if
    return kMapL + round(pX * kScale)
 end Demo.PX
 
 function Demo.PZ pZ
+   if pZ is not a number then
+      Demo.BadValue "z", pZ
+      put 0 into pZ
+   end if
    return kMapT + round(pZ * kScale)
 end Demo.PZ
+
+-- the owner met "error in left operand" in Demo.PZ (18 Nov) and it never came back headless:
+-- a bad value is drawn at 0 instead, and the first one a run writes who sent it to the game notes inbox
+local sBadSeen
+on Demo.BadValue pAxis, pValue
+   local tFile, tLine
+   if sBadSeen is true then exit Demo.BadValue
+   put true into sBadSeen
+   put the effective filename of me into tFile
+   set the itemDelimiter to "/"
+   put item 1 to -3 of tFile & "/LIB_LLMIN/LIB_GAMES/GAME_NOTES.txt" into tFile
+   set the itemDelimiter to ","
+   put the short date && the long time && "| RTS_Demo | BAD" && pAxis && "[" & char 1 to 60 of pValue & "] from:" && \
+         replaceText(line 1 to -2 of the executionContexts, "\n", " < ") & lf into tLine
+   if there is a folder (char 1 to -15 of tFile) then
+      open file tFile for append
+      write tLine to file tFile
+      close file tFile
+   end if
+end Demo.BadValue
 
 function Demo.Square pX, pZ, pHalf
    local tX, tZ
