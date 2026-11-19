@@ -52,7 +52,8 @@ on Demo.Start
    end if
    Demo.StopLoop
    if there is not a card "Play" of stack "RTS_Demo" then Demo.Build
-   set the title of me to "FOR BILL RTS_Demo | drag to select, click to command, ? for help"
+   set the title of me to "FOR OWNER | RTS_Demo: drag to select, click to command, ? for help"
+   dispatch "Users.TitleStack" with the short name of me, "RTS_Demo: drag to select, click to command, ? for help"   -- LIB_USERS words it, when in use
    go card "Play" of stack "RTS_Demo"
    Demo.NewLevel
    put false into sPaused
@@ -169,7 +170,7 @@ end Demo.Poly
 
 function Demo.AboutText
    return the long date & cr & \
-         "Stack: RTS_Demo   Title: FOR BILL RTS_Demo | drag to select, click to command, ? for help" & cr & cr & \
+         "Stack: RTS_Demo   Title: FOR OWNER | RTS_Demo: drag to select, click to command, ? for help" & cr & cr & \
          "What it is for: to show LIB_RTS, the iGame3D 2008 real-time strategy system (the RNDRTS level maker and the RTS_Functions scripts) rebuilt in xTalk. A random level: houses with fenced yards, the living (white; orange with a gun), the dead (green), guns (yellow), cars (blue). Seen from above." & cr & cr & \
          "How to play it:" & cr & \
          "  - Drag on the map: select your units in a box. Shift adds or takes away." & cr & \
