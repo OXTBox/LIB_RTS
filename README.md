@@ -47,3 +47,7 @@ repeat for each line tL in RTS.Snapshot()   -- id,kind,team,x,z,fx,fz,alive,sele
 ```
 
 Positions are in metres, on a 96 m map (6 x 6 blocks of 16 m), in 2 m path cells.
+
+## Licence
+
+GPL-3.0 (see `LICENSE`), because the xTalk work here is built on the GPL-licensed LiveCode Community 9 engine. Copyright (c) 2026 xAction.
